@@ -54,7 +54,7 @@ select{padding:9px 10px;border:1px solid #ccd2d9;border-radius:11px;background:#
 mark{background:#ffe58d;color:inherit;border-radius:4px;padding:0 1px}
 .footer-note{margin:18px 4px;padding:12px;border-radius:12px;background:#fff;border:1px solid var(--line);color:#555b63;font-size:13px;line-height:1.4}
 @media(min-width:700px){header{padding-left:calc((100% - 820px)/2 + 14px);padding-right:calc((100% - 820px)/2 + 14px)}main{padding-top:18px}.card{padding:17px 18px}}
-</style></head><body><header><div class="headerline"><h1>Аптечка</h1><div class="version">v1.5</div></div><div class="searchrow"><div class="searchwrap"><span class="searchicon">⌕</span><input id="q" type="search" placeholder="Название или для чего нужно…" autocomplete="off" enterkeyhint="search" aria-label="Поиск по аптечке"><button id="clear" aria-label="Очистить поиск" title="Очистить" hidden>×</button></div><button id="voice" aria-label="Голосовой поиск" title="Голосовой поиск">🎙</button></div><div class="small" id="voiceHint">Можно искать обычной фразой: «от аллергии», «болит горло», «где Энтерол».</div>
+</style></head><body><header><div class="headerline"><h1>Аптечка</h1><div class="version">v1.5.1</div></div><div class="searchrow"><div class="searchwrap"><span class="searchicon">⌕</span><input id="q" type="search" placeholder="Название или для чего нужно…" autocomplete="off" enterkeyhint="search" aria-label="Поиск по аптечке"><button id="clear" aria-label="Очистить поиск" title="Очистить" hidden>×</button></div><button id="voice" aria-label="Голосовой поиск" title="Голосовой поиск">🎙</button></div><div class="small" id="voiceHint">Можно искать обычной фразой: «от аллергии», «болит горло», «где Энтерол».</div>
 <div id="voiceHelp" class="voicehelp">Прямое распознавание речи здесь недоступно. Поле поиска уже активно. Нажмите микрофон на клавиатуре телефона и продиктуйте запрос.</div><div class="filters" id="chips" aria-label="Быстрые фильтры"></div></header><main><div class="toolbar"><div class="summary" id="summary"></div><select id="sort" aria-label="Сортировка"><option value="name">По названию</option><option value="expiry">По сроку</option><option value="location">По месту</option></select></div><div id="list"></div><div class="footer-note">Справочник показывает домашний запас и место хранения. Он не заменяет инструкцию к препарату или назначение врача. Для детских, рецептурных, антибиотиков, гормональных и инъекционных средств сверяйте способ применения и дозировку отдельно.</div></main><script>
 const RAW = String.raw`
 Шкаф в зале → прозрачная коробка с красной ручкой|Кожа и раны|Cosmopor E steril 10×8 см|31.01.2027|Стерильная раневая/послеоперационная повязка.||2 шт.|повязка рана перевязка стерильная
@@ -294,7 +294,7 @@ function render(){
 
 const searchInput=$('#q'),voiceHelp=$('#voiceHelp'),clearBtn=$('#clear');
 function syncClear(){clearBtn.hidden=!searchInput.value}
-searchInput.addEventListener('input',()=>{if(searchInput.value.trim())voiceHelp.style.display='none';syncClear();render()});
+searchInput.addEventListener('input',()=>{if(searchInput.value.trim()){voiceHelp.style.display='none';if(active!=='Все'){active='Все';chips()}}syncClear();render()});
 clearBtn.onclick=()=>{searchInput.value='';active='Все';voiceHelp.style.display='none';chips();syncClear();render();searchInput.focus()};
 $('#sort').addEventListener('change',render);
 
