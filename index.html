@@ -294,7 +294,7 @@ function render(){
 
 const searchInput=$('#q'),voiceHelp=$('#voiceHelp'),clearBtn=$('#clear');
 function syncClear(){clearBtn.hidden=!searchInput.value}
-searchInput.addEventListener('input',()=>{if(searchInput.value.trim()){voiceHelp.style.display='none';if(active!=='Все'){active='Все';chips()}}syncClear();render()});
+searchInput.addEventListener('input',()=>{if(searchInput.value.trim()){voiceHelp.style.display='none';if(active!=='Все'){active='Все';chips();}}syncClear();render()});
 clearBtn.onclick=()=>{searchInput.value='';active='Все';voiceHelp.style.display='none';chips();syncClear();render();searchInput.focus()};
 $('#sort').addEventListener('change',render);
 
