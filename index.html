@@ -1,9 +1,61 @@
 <!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f4f5f7"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="icon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Аптечка"><title>Аптечка</title><style>
-:root{--bg:#f4f5f7;--card:#fff;--text:#17181a;--muted:#686d75;--line:#e3e5e8;--warn:#9a5b00;--danger:#b42318;--ok:#1f7a45}*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}header{position:sticky;top:0;z-index:5;background:rgba(244,245,247,.96);backdrop-filter:blur(12px);padding:14px 14px 10px;border-bottom:1px solid var(--line)}h1{margin:0 0 10px;font-size:26px}.searchrow{display:flex;gap:8px}input[type=search]{flex:1;min-width:0;padding:13px 14px;font-size:17px;border:1px solid #ccd0d5;border-radius:12px;background:#fff}button{border:0;border-radius:12px;padding:0 14px;font-size:16px;background:#fff;border:1px solid #ccd0d5}#voice{font-size:22px;min-width:52px}.filters{display:flex;gap:8px;overflow:auto;padding:10px 0 2px;scrollbar-width:none}.filters::-webkit-scrollbar{display:none}.chip{white-space:nowrap;padding:8px 11px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:14px}.chip.active{background:#17181a;color:#fff;border-color:#17181a}main{max-width:820px;margin:auto;padding:12px 12px 80px}.summary{color:var(--muted);font-size:14px;margin:4px 2px 10px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0;box-shadow:0 1px 2px rgba(0,0,0,.03)}.name{font-size:18px;font-weight:700;line-height:1.25}.meta{margin-top:8px;display:grid;gap:6px;font-size:15px;line-height:1.35}.label{color:var(--muted)}.expiry{font-weight:650}.expiry.soon{color:var(--warn)}.expiry.expired{color:var(--danger)}.expiry.ok{color:var(--ok)}.note{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);color:#51565e;font-size:14px}.empty{text-align:center;color:var(--muted);padding:50px 18px}.badge{display:inline-block;font-size:12px;padding:4px 7px;border-radius:999px;background:#eef2f7;margin-top:7px}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px}select{padding:9px 10px;border:1px solid #ccd0d5;border-radius:10px;background:#fff;font-size:14px;max-width:52%}.small{font-size:12px;color:var(--muted);margin-top:6px}.footer-note{margin:18px 4px;padding:12px;border-radius:12px;background:#fff;border:1px solid var(--line);color:#555b63;font-size:13px;line-height:1.4}@media(min-width:700px){main{padding-top:18px}.card{padding:16px 18px}}
-</style></head><body><header><h1>Аптечка</h1><div class="searchrow"><input id="q" type="search" placeholder="Например: от аллергии, болит горло, Энтерол…" autocomplete="off" enterkeyhint="search"><button id="voice" aria-label="Голосовой поиск" title="Голосовой поиск">🎙</button></div><div class="small" id="voiceHint">Можно говорить обычной фразой: «от аллергии», «что есть от температуры», «где Энтерол». Если прямой микрофон недоступен, используйте диктовку клавиатуры.</div>
-<div id="voiceHelp" style="display:none;margin-top:8px;padding:10px 12px;border-radius:12px;background:#fff3cd;border:1px solid #ead79a;font-size:14px;line-height:1.35">
-Прямое распознавание речи здесь недоступно. Поле поиска уже активно. Нажмите микрофон на клавиатуре телефона и продиктуйте запрос, например «Энтерол» или «от аллергии».
-</div><div class="filters" id="chips"></div></header><main><div class="toolbar"><div class="summary" id="summary"></div><select id="sort"><option value="name">По названию</option><option value="expiry">По сроку</option><option value="location">По месту</option></select></div><div id="list"></div><div class="footer-note">Справочник показывает домашний запас и место хранения. Он не заменяет инструкцию к препарату или назначение врача. Для детских, рецептурных, антибиотиков, гормональных и инъекционных средств сверяйте способ применения и дозировку отдельно.</div></main><script>
+:root{--bg:#f3f5f8;--card:#fff;--text:#17191c;--muted:#6b717a;--line:#e2e6eb;--accent:#1769e0;--warn:#7a4a00;--warn-bg:#fff8df;--warn-line:#edc968;--danger:#a82218;--danger-bg:#fff0ee;--danger-line:#efaaa4;--ok:#267447}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:linear-gradient(180deg,#f7f9fb 0,#f3f5f8 240px);color:var(--text);min-height:100vh}
+header{position:sticky;top:0;z-index:5;background:rgba(247,249,251,.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);padding:14px 14px 10px;border-bottom:1px solid rgba(219,224,230,.9)}
+.headerline{display:flex;align-items:end;justify-content:space-between;gap:10px;margin-bottom:11px}
+h1{margin:0;font-size:28px;letter-spacing:-.4px}
+.version{font-size:12px;color:var(--muted);padding-bottom:3px}
+.searchrow{display:flex;gap:8px;align-items:stretch}
+.searchwrap{position:relative;flex:1;min-width:0}
+.searchicon{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:20px;color:#7c838d;pointer-events:none}
+input[type=search]{width:100%;height:54px;padding:0 45px 0 44px;font-size:18px;border:1.5px solid #c8ced6;border-radius:15px;background:#fff;color:var(--text);outline:none;box-shadow:0 2px 8px rgba(31,41,55,.04)}
+input[type=search]:focus{border-color:#8bb6ef;box-shadow:0 0 0 3px rgba(23,105,224,.10)}
+input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none}
+button{font:inherit}
+#clear{position:absolute;right:7px;top:7px;width:40px;height:40px;border:0;border-radius:11px;background:transparent;color:#717780;font-size:26px;line-height:1;padding:0}
+#clear:active{background:#eef1f4}
+#voice{width:54px;min-width:54px;height:54px;border:1.5px solid #c8ced6;border-radius:15px;background:#fff;font-size:23px;padding:0;box-shadow:0 2px 8px rgba(31,41,55,.04)}
+#voice:active{transform:scale(.97);background:#f0f4f8}
+.small{font-size:12px;color:var(--muted);margin:7px 2px 0;line-height:1.35}
+.voicehelp{display:none;margin-top:8px;padding:10px 12px;border-radius:12px;background:#fff3cd;border:1px solid #ead79a;font-size:14px;line-height:1.35}
+.filters{display:flex;gap:7px;overflow:auto;padding:11px 0 2px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.filters::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;white-space:nowrap;min-height:36px;padding:7px 11px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:14px;color:#30343a}
+.chip.active{background:#1d2229;color:#fff;border-color:#1d2229;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+main{max-width:820px;margin:auto;padding:13px 12px 80px}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:2px}
+.summary{color:var(--muted);font-size:14px;margin:4px 2px 8px}
+select{padding:9px 10px;border:1px solid #ccd2d9;border-radius:11px;background:#fff;font-size:14px;max-width:52%;color:var(--text)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:19px;padding:15px;margin:10px 0;box-shadow:0 3px 12px rgba(31,41,55,.045);transition:background .15s,border-color .15s}
+.card.soon{background:var(--warn-bg);border-color:var(--warn-line);box-shadow:0 3px 12px rgba(122,74,0,.07)}
+.card.expired{background:var(--danger-bg);border-color:var(--danger-line);box-shadow:0 3px 12px rgba(168,34,24,.07)}
+.cardtop{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.name{font-size:20px;font-weight:750;line-height:1.22;letter-spacing:-.15px}
+.badge{flex:0 0 auto;display:inline-block;font-size:12px;padding:5px 8px;border-radius:999px;background:#eef2f7;color:#505761}
+.card.soon .badge{background:#ffefbd;color:#745000}
+.card.expired .badge{background:#ffd8d4;color:#8e2118}
+.meta{margin-top:11px;display:grid;gap:8px;font-size:15px;line-height:1.4}
+.label{color:var(--muted)}
+.location{display:flex;gap:7px;align-items:flex-start;margin-top:11px;padding:10px 11px;border-radius:12px;background:#f1f5fb;border:1px solid #e1e8f2;font-size:14px;line-height:1.35}
+.card.soon .location{background:rgba(255,255,255,.55);border-color:#ecdca8}
+.card.expired .location{background:rgba(255,255,255,.55);border-color:#edc9c5}
+.locationicon{font-size:15px;line-height:1.35}
+.expiryrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:2px}
+.expiry{font-weight:700;text-align:right}
+.expiry.soon{color:var(--warn)}
+.expiry.expired{color:var(--danger)}
+.expiry.ok{color:var(--ok)}
+.note{margin-top:10px;padding-top:9px;border-top:1px solid rgba(150,156,164,.22);color:#51565e;font-size:14px;line-height:1.4}
+.empty{text-align:center;color:var(--muted);padding:48px 18px;background:#fff;border:1px solid var(--line);border-radius:18px;margin-top:12px}
+.empty strong{display:block;color:var(--text);font-size:18px;margin:7px 0 5px}
+.emptyicon{font-size:31px}
+mark{background:#ffe58d;color:inherit;border-radius:4px;padding:0 1px}
+.footer-note{margin:18px 4px;padding:12px;border-radius:12px;background:#fff;border:1px solid var(--line);color:#555b63;font-size:13px;line-height:1.4}
+@media(min-width:700px){header{padding-left:calc((100% - 820px)/2 + 14px);padding-right:calc((100% - 820px)/2 + 14px)}main{padding-top:18px}.card{padding:17px 18px}}
+</style></head><body><header><div class="headerline"><h1>Аптечка</h1><div class="version">v1.5</div></div><div class="searchrow"><div class="searchwrap"><span class="searchicon">⌕</span><input id="q" type="search" placeholder="Название или для чего нужно…" autocomplete="off" enterkeyhint="search" aria-label="Поиск по аптечке"><button id="clear" aria-label="Очистить поиск" title="Очистить" hidden>×</button></div><button id="voice" aria-label="Голосовой поиск" title="Голосовой поиск">🎙</button></div><div class="small" id="voiceHint">Можно искать обычной фразой: «от аллергии», «болит горло», «где Энтерол».</div>
+<div id="voiceHelp" class="voicehelp">Прямое распознавание речи здесь недоступно. Поле поиска уже активно. Нажмите микрофон на клавиатуре телефона и продиктуйте запрос.</div><div class="filters" id="chips" aria-label="Быстрые фильтры"></div></header><main><div class="toolbar"><div class="summary" id="summary"></div><select id="sort" aria-label="Сортировка"><option value="name">По названию</option><option value="expiry">По сроку</option><option value="location">По месту</option></select></div><div id="list"></div><div class="footer-note">Справочник показывает домашний запас и место хранения. Он не заменяет инструкцию к препарату или назначение врача. Для детских, рецептурных, антибиотиков, гормональных и инъекционных средств сверяйте способ применения и дозировку отдельно.</div></main><script>
 const RAW = String.raw`
 Шкаф в зале → прозрачная коробка с красной ручкой|Кожа и раны|Cosmopor E steril 10×8 см|31.01.2027|Стерильная раневая/послеоперационная повязка.||2 шт.|повязка рана перевязка стерильная
 Шкаф в зале → прозрачная коробка с красной ручкой|Рот и горло|Камистад гель|11.2026|Для уменьшения боли и воспаления слизистой рта и дёсен.||||дёсны рот стоматология боль
@@ -109,9 +161,50 @@ const RAW = String.raw`
 const ITEMS = RAW.trim().split('\n').map((line,i)=>{const p=line.split('|'),mid=p.slice(5,-1);return{id:i+1,location:p[0],category:p[1],name:p[2],expiry_display:p[3],purpose:p[4],substance:mid[0]||'',note:mid.slice(1).filter(Boolean).join(' '),keywords:p[p.length-1]||''};});
 
 </script><script>
-const $=s=>document.querySelector(s);const norm=s=>(s||'').toLowerCase().replace(/ё/g,'е').replace(/[–—]/g,'-').replace(/[^a-zа-я0-9%+\- ]/gi,' ').replace(/\s+/g,' ').trim();
-function expiryDate(s){if(!s||/не установлен|точная дата|квартал|месяц не установлен/i.test(s))return null;let m=s.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);if(m)return new Date(+m[3],+m[2]-1,+m[1],23,59,59);m=s.match(/^(\d{2})\.(\d{4})$/);if(m)return new Date(+m[2],+m[1],0,23,59,59);return null}function state(s){const d=expiryDate(s);if(!d)return'';const n=new Date();n.setHours(0,0,0,0);const days=(d-n)/86400000;return days<0?'expired':days<=180?'soon':'ok'}function status(s){const x=state(s);return x==='expired'?' — срок истёк':x==='soon'?' — скоро истекает':''}
-const cats=['Все','Скоро истекает','Просрочено','Без срока',...Array.from(new Set(ITEMS.map(x=>x.category))).sort((a,b)=>a.localeCompare(b,'ru'))];let active='Все';
+const $=s=>document.querySelector(s);
+const norm=s=>(s||'').toLowerCase().replace(/ё/g,'е').replace(/[–—]/g,'-').replace(/[^a-zа-я0-9%+\- ]/gi,' ').replace(/\s+/g,' ').trim();
+
+function expiryDate(s){
+  if(!s||/не установлен|точная дата|квартал|месяц не установлен/i.test(s))return null;
+  let m=s.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if(m)return new Date(+m[3],+m[2]-1,+m[1],23,59,59);
+  m=s.match(/^(\d{2})\.(\d{4})$/);
+  if(m)return new Date(+m[2],+m[1],0,23,59,59);
+  return null
+}
+function state(s){
+  const d=expiryDate(s);
+  if(!d)return'';
+  const n=new Date();n.setHours(0,0,0,0);
+  const days=(d-n)/86400000;
+  return days<0?'expired':days<=60?'soon':'ok'
+}
+function itemState(x){
+  if(/квартал 2026/i.test(x.expiry_display))return'expired';
+  return state(x.expiry_display)
+}
+function statusFor(st){return st==='expired'?' — срок истёк':st==='soon'?' — истекает в ближайшие 60 дней':''}
+
+const baseCats=[
+  {key:'Все',label:'Все'},
+  {key:'Температура и боль',label:'Температура'},
+  {key:'Рот и горло',label:'Горло'},
+  {key:'Аллергия',label:'Аллергия'},
+  {key:'Кашель и дыхание',label:'Кашель'},
+  {key:'Нос и пазухи',label:'Нос'},
+  {key:'Желудок и кишечник',label:'Живот'},
+  {key:'Глаза',label:'Глаза'},
+  {key:'Уши',label:'Уши'},
+  {key:'Детское',label:'Детское'},
+  {key:'Скоро истекает',label:'Скоро'},
+  {key:'Просрочено',label:'Просрочено'},
+  {key:'Без срока',label:'Без срока'}
+];
+const used=new Set(baseCats.map(x=>x.key));
+const extraCats=Array.from(new Set(ITEMS.map(x=>x.category))).filter(x=>!used.has(x)).sort((a,b)=>a.localeCompare(b,'ru')).map(x=>({key:x,label:x}));
+const cats=[...baseCats,...extraCats];
+let active='Все';
+
 function blob(x){return norm([x.name,x.substance,x.purpose,x.location,x.category,x.keywords,x.note].join(' '))}
 const STOP=new Set(['от','для','при','по','в','во','на','с','со','и','или','а','у','к','что','есть','имеется','найди','найти','покажи','показать','дай','мне','нам','нужно','нужен','нужна','нужны','лекарство','лекарства','средство','средства','препарат','препараты','таблетка','таблетки','где','лежит','лежат','можно','чем']);
 const ALIAS={
@@ -153,17 +246,59 @@ function match(x){
   const words=qwords($('#q').value),b=blob(x);
   const text=words.every(w=>tokenOk(w,b));
   let cat=true;
-  if(active==='Скоро истекает')cat=state(x.expiry_display)==='soon';
-  else if(active==='Просрочено')cat=state(x.expiry_display)==='expired'||/квартал 2026/i.test(x.expiry_display);
+  if(active==='Скоро истекает')cat=itemState(x)==='soon';
+  else if(active==='Просрочено')cat=itemState(x)==='expired';
   else if(active==='Без срока')cat=!expiryDate(x.expiry_display)&&!/квартал 2026/i.test(x.expiry_display)&&!/2028, месяц/i.test(x.expiry_display);
+  else if(active==='Детское')cat=['детск','ребен','педиатр'].some(w=>b.includes(w));
   else if(active!=='Все')cat=x.category===active;
   return text&&cat
 }
-function sortRows(a){const mode=$('#sort').value;return a.sort((x,y)=>{if(mode==='expiry'){const xd=expiryDate(x.expiry_display),yd=expiryDate(y.expiry_display);if(xd&&yd)return xd-yd;if(xd)return-1;if(yd)return 1}if(mode==='location'){const c=x.location.localeCompare(y.location,'ru');if(c)return c}return x.name.localeCompare(y.name,'ru')})}function esc(s){return(s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
-function chips(){ $('#chips').innerHTML=cats.map(c=>`<button class="chip ${c===active?'active':''}" data-c="${esc(c)}">${esc(c)}</button>`).join('');document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{active=b.dataset.c;chips();render()}) }
-function render(){const rows=sortRows(ITEMS.filter(match));$('#summary').textContent=`Найдено: ${rows.length} из ${ITEMS.length}`;if(!rows.length){$('#list').innerHTML='<div class="empty">Ничего не найдено. Попробуйте, например: «от аллергии», «болит горло», «от температуры» или название лекарства.</div>';return}$('#list').innerHTML=rows.map(x=>{let st=state(x.expiry_display);if(/квартал 2026/i.test(x.expiry_display))st='expired';return `<article class="card"><div class="name">${esc(x.name)}</div><span class="badge">${esc(x.category)}</span><div class="meta">${x.substance?`<div><span class="label">Действующее вещество:</span> ${esc(x.substance)}</div>`:''}<div><span class="label">Для чего:</span> ${esc(x.purpose)}</div><div><span class="label">Где лежит:</span> <strong>${esc(x.location)}</strong></div><div><span class="label">Срок:</span> <span class="expiry ${st}">${esc(x.expiry_display)}${status(x.expiry_display)}</span></div></div>${x.note?`<div class="note">${esc(x.note)}</div>`:''}</article>`}).join('')}
-$('#q').addEventListener('input',render);$('#sort').addEventListener('change',render);const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-const searchInput=$('#q'),voiceHelp=$('#voiceHelp');
+function sortRows(a){
+  const mode=$('#sort').value;
+  return a.sort((x,y)=>{
+    if(mode==='expiry'){
+      const xd=expiryDate(x.expiry_display),yd=expiryDate(y.expiry_display);
+      if(xd&&yd)return xd-yd;if(xd)return-1;if(yd)return 1
+    }
+    if(mode==='location'){const c=x.location.localeCompare(y.location,'ru');if(c)return c}
+    return x.name.localeCompare(y.name,'ru')
+  })
+}
+function esc(s){return(s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+function regexEsc(s){return s.replace(/[.*+?^$()|[\]\\{}]/g,'\\$&')}
+function highlight(s){
+  let out=esc(s);
+  const terms=($('#q').value||'').split(/\s+/).map(t=>t.replace(/[^a-zа-яё0-9-]/gi,'')).filter(t=>t.length>1&&!STOP.has(norm(t))).slice(0,6);
+  for(const t of terms){out=out.replace(new RegExp('('+regexEsc(esc(t))+')','gi'),'<mark>$1</mark>')}
+  return out
+}
+function chips(){
+  $('#chips').innerHTML=cats.map(c=>'<button class="chip '+(c.key===active?'active':'')+'" data-c="'+esc(c.key)+'">'+esc(c.label)+'</button>').join('');
+  document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{active=b.dataset.c;chips();render()})
+}
+function render(){
+  const rows=sortRows(ITEMS.filter(match));
+  const searching=$('#q').value.trim()||active!=='Все';
+  $('#summary').textContent=searching?'Найдено: '+rows.length+' из '+ITEMS.length:'Всего позиций: '+ITEMS.length;
+  if(!rows.length){
+    $('#list').innerHTML='<div class="empty"><div class="emptyicon">⌕</div><strong>Ничего не найдено</strong><div>Попробуйте другое название, назначение или одну из быстрых категорий сверху.</div></div>';
+    return
+  }
+  $('#list').innerHTML=rows.map(x=>{
+    const st=itemState(x);
+    const substance=x.substance?'<div><span class="label">Действующее вещество:</span> '+highlight(x.substance)+'</div>':'';
+    const note=x.note?'<div class="note">'+highlight(x.note)+'</div>':'';
+    return '<article class="card '+st+'"><div class="cardtop"><div class="name">'+highlight(x.name)+'</div><span class="badge">'+esc(x.category)+'</span></div><div class="meta">'+substance+'<div><span class="label">Для чего:</span> '+highlight(x.purpose)+'</div><div class="expiryrow"><span class="label">Срок годности:</span><span class="expiry '+st+'">'+esc(x.expiry_display)+statusFor(st)+'</span></div></div><div class="location"><span class="locationicon">📍</span><div><span class="label">Где лежит:</span> <strong>'+highlight(x.location)+'</strong></div></div>'+note+'</article>'
+  }).join('')
+}
+
+const searchInput=$('#q'),voiceHelp=$('#voiceHelp'),clearBtn=$('#clear');
+function syncClear(){clearBtn.hidden=!searchInput.value}
+searchInput.addEventListener('input',()=>{if(searchInput.value.trim())voiceHelp.style.display='none';syncClear();render()});
+clearBtn.onclick=()=>{searchInput.value='';active='Все';voiceHelp.style.display='none';chips();syncClear();render();searchInput.focus()};
+$('#sort').addEventListener('change',render);
+
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 function voiceFallback(msg){
   searchInput.focus();
   voiceHelp.style.display='block';
@@ -182,15 +317,15 @@ if(SR){
   r.onstart=()=>$('#voiceHint').textContent='Слушаю… скажите название или назначение.';
   r.onresult=e=>{
     searchInput.value=e.results[0][0].transcript;
-    active='Все';chips();render();
+    active='Все';chips();syncClear();render();
     voiceHelp.style.display='none';
     $('#voiceHint').textContent='Голосовой запрос распознан.'
   };
   r.onerror=()=>voiceFallback('Браузер не разрешил прямое распознавание речи. Используйте микрофон клавиатуры телефона.');
   r.onend=()=>{if($('#voiceHint').textContent.startsWith('Слушаю'))$('#voiceHint').textContent='Голосовой поиск завершён.'}
 }else{
-  $('#voice').onclick=()=>voiceFallback('В этом браузере прямое распознавание речи не поддерживается. Используйте микрофон клавиатуры телефона.');
+  $('#voice').onclick=()=>voiceFallback('В этом браузере прямое распознавание речи не поддерживается. Используйте микрофон клавиатуры телефона.')
 }
-searchInput.addEventListener('input',()=>{if(searchInput.value.trim())voiceHelp.style.display='none'});
-chips();render();if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+chips();syncClear();render();
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('service-worker.js').catch(()=>{});
 </script></body></html>
