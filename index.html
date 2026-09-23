@@ -1,4 +1,5 @@
 <!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f4f5f7"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="icon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Аптечка"><title>Аптечка</title><style>
+
 :root{--bg:#f3f5f8;--card:#fff;--text:#17191c;--muted:#6b717a;--line:#e2e6eb;--accent:#1769e0;--warn:#7a4a00;--warn-bg:#fff8df;--warn-line:#edc968;--danger:#a82218;--danger-bg:#fff0ee;--danger-line:#efaaa4;--ok:#267447}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -54,8 +55,9 @@ select{padding:9px 10px;border:1px solid #ccd2d9;border-radius:11px;background:#
 mark{background:#ffe58d;color:inherit;border-radius:4px;padding:0 1px}
 .footer-note{margin:18px 4px;padding:12px;border-radius:12px;background:#fff;border:1px solid var(--line);color:#555b63;font-size:13px;line-height:1.4}
 @media(min-width:700px){header{padding-left:calc((100% - 820px)/2 + 14px);padding-right:calc((100% - 820px)/2 + 14px)}main{padding-top:18px}.card{padding:17px 18px}}
-</style></head><body><header><div class="headerline"><h1>Аптечка</h1><div class="version">v1.5.1</div></div><div class="searchrow"><div class="searchwrap"><span class="searchicon">⌕</span><input id="q" type="search" placeholder="Название или для чего нужно…" autocomplete="off" enterkeyhint="search" aria-label="Поиск по аптечке"><button id="clear" aria-label="Очистить поиск" title="Очистить" hidden>×</button></div><button id="voice" aria-label="Голосовой поиск" title="Голосовой поиск">🎙</button></div><div class="small" id="voiceHint">Можно искать обычной фразой: «от аллергии», «болит горло», «где Энтерол».</div>
-<div id="voiceHelp" class="voicehelp">Прямое распознавание речи здесь недоступно. Поле поиска уже активно. Нажмите микрофон на клавиатуре телефона и продиктуйте запрос.</div><div class="filters" id="chips" aria-label="Быстрые фильтры"></div></header><main><div class="toolbar"><div class="summary" id="summary"></div><select id="sort" aria-label="Сортировка"><option value="name">По названию</option><option value="expiry">По сроку</option><option value="location">По месту</option></select></div><div id="list"></div><div class="footer-note">Справочник показывает домашний запас и место хранения. Он не заменяет инструкцию к препарату или назначение врача. Для детских, рецептурных, антибиотиков, гормональных и инъекционных средств сверяйте способ применения и дозировку отдельно.</div></main><script>
+
+</style></head><body><header><div class="headerline"><h1>Аптечка</h1><div class="version">v1.5.2</div></div><div class="searchrow"><div class="searchwrap"><span class="searchicon">⌕</span><input id="q" type="search" placeholder="Название или для чего нужно…" autocomplete="off" enterkeyhint="search" aria-label="Поиск по аптечке"><button id="clear" aria-label="Очистить поиск" title="Очистить" hidden>×</button></div><button id="voice" aria-label="Голосовой поиск" title="Голосовой поиск">🎙</button></div><div class="small" id="voiceHint">Можно искать обычной фразой: «от живота», «болит горло», «где Энтерол».</div>
+<div id="voiceHelp" class="voicehelp">Прямое распознавание речи здесь недоступно. Поле поиска уже активно. Нажмите микрофон на клавиатуре телефона и продиктуйте запрос.</div><div class="filters" id="chips" aria-label="Быстрые фильтры"></div></header><main><div class="toolbar"><div class="summary" id="summary"></div><select id="sort" aria-label="Сортировка"><option value="name">По названию</option><option value="expiry">По сроку</option><option value="location">По месту</option></select></div><div id="list"></div><div class="footer-note">Справочник показывает домашний запас и место хранения. Поиск показывает позиции по данным реестра и не является рекомендацией по лечению. Для детских, рецептурных, антибиотиков, гормональных и инъекционных средств сверяйте способ применения и дозировку отдельно.</div></main><script>
 const RAW = String.raw`
 Шкаф в зале → прозрачная коробка с красной ручкой|Кожа и раны|Cosmopor E steril 10×8 см|31.01.2027|Стерильная раневая/послеоперационная повязка.||2 шт.|повязка рана перевязка стерильная
 Шкаф в зале → прозрачная коробка с красной ручкой|Рот и горло|Камистад гель|11.2026|Для уменьшения боли и воспаления слизистой рта и дёсен.||||дёсны рот стоматология боль
@@ -160,172 +162,155 @@ const RAW = String.raw`
 `;
 const ITEMS = RAW.trim().split('\n').map((line,i)=>{const p=line.split('|'),mid=p.slice(5,-1);return{id:i+1,location:p[0],category:p[1],name:p[2],expiry_display:p[3],purpose:p[4],substance:mid[0]||'',note:mid.slice(1).filter(Boolean).join(' '),keywords:p[p.length-1]||''};});
 
-</script><script>
+
 const $=s=>document.querySelector(s);
 const norm=s=>(s||'').toLowerCase().replace(/ё/g,'е').replace(/[–—]/g,'-').replace(/[^a-zа-я0-9%+\- ]/gi,' ').replace(/\s+/g,' ').trim();
 
 function expiryDate(s){
   if(!s||/не установлен|точная дата|квартал|месяц не установлен/i.test(s))return null;
-  let m=s.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
-  if(m)return new Date(+m[3],+m[2]-1,+m[1],23,59,59);
-  m=s.match(/^(\d{2})\.(\d{4})$/);
-  if(m)return new Date(+m[2],+m[1],0,23,59,59);
+  let m=s.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);if(m)return new Date(+m[3],+m[2]-1,+m[1],23,59,59);
+  m=s.match(/^(\d{2})\.(\d{4})$/);if(m)return new Date(+m[2],+m[1],0,23,59,59);
   return null
 }
-function state(s){
-  const d=expiryDate(s);
-  if(!d)return'';
-  const n=new Date();n.setHours(0,0,0,0);
-  const days=(d-n)/86400000;
-  return days<0?'expired':days<=60?'soon':'ok'
-}
-function itemState(x){
-  if(/квартал 2026/i.test(x.expiry_display))return'expired';
-  return state(x.expiry_display)
-}
+function state(s){const d=expiryDate(s);if(!d)return'';const n=new Date();n.setHours(0,0,0,0);const days=(d-n)/86400000;return days<0?'expired':days<=60?'soon':'ok'}
+function itemState(x){if(/квартал 2026/i.test(x.expiry_display))return'expired';return state(x.expiry_display)}
 function statusFor(st){return st==='expired'?' — срок истёк':st==='soon'?' — истекает в ближайшие 60 дней':''}
 
 const baseCats=[
-  {key:'Все',label:'Все'},
-  {key:'Температура и боль',label:'Температура'},
-  {key:'Рот и горло',label:'Горло'},
-  {key:'Аллергия',label:'Аллергия'},
-  {key:'Кашель и дыхание',label:'Кашель'},
-  {key:'Нос и пазухи',label:'Нос'},
-  {key:'Желудок и кишечник',label:'Живот'},
-  {key:'Глаза',label:'Глаза'},
-  {key:'Уши',label:'Уши'},
-  {key:'Детское',label:'Детское'},
-  {key:'Скоро истекает',label:'Скоро'},
-  {key:'Просрочено',label:'Просрочено'},
+  {key:'Все',label:'Все'},{key:'Температура и боль',label:'Температура'},{key:'Рот и горло',label:'Горло'},
+  {key:'Аллергия',label:'Аллергия'},{key:'Кашель и дыхание',label:'Кашель'},{key:'Нос и пазухи',label:'Нос'},
+  {key:'Желудок и кишечник',label:'Живот'},{key:'Глаза',label:'Глаза'},{key:'Уши',label:'Уши'},
+  {key:'Детское',label:'Детское'},{key:'Скоро истекает',label:'Скоро'},{key:'Просрочено',label:'Просрочено'},
   {key:'Без срока',label:'Без срока'}
 ];
 const used=new Set(baseCats.map(x=>x.key));
 const extraCats=Array.from(new Set(ITEMS.map(x=>x.category))).filter(x=>!used.has(x)).sort((a,b)=>a.localeCompare(b,'ru')).map(x=>({key:x,label:x}));
-const cats=[...baseCats,...extraCats];
-let active='Все';
+const cats=[...baseCats,...extraCats];let active='Все';
 
-function blob(x){return norm([x.name,x.substance,x.purpose,x.location,x.category,x.keywords,x.note].join(' '))}
-const STOP=new Set(['от','для','при','по','в','во','на','с','со','и','или','а','у','к','что','есть','имеется','найди','найти','покажи','показать','дай','мне','нам','нужно','нужен','нужна','нужны','лекарство','лекарства','средство','средства','препарат','препараты','таблетка','таблетки','где','лежит','лежат','можно','чем']);
+const STOP=new Set([
+  'от','для','при','по','в','во','на','с','со','и','или','а','у','к','что','есть','имеется',
+  'найди','найти','покажи','показать','дай','мне','нам','нужно','нужен','нужна','нужны',
+  'лекарство','лекарства','средство','средства','препарат','препараты','таблетка','таблетки',
+  'где','лежит','лежат','можно','чем','какие','какое','какой','что-нибудь','чтото',
+  'болит','болят','болело','болеть','беспокоит','беспокоят'
+]);
+const PAIN_WORDS=new Set(['болит','болят','болело','болеть','беспокоит','беспокоят']);
 const ALIAS={
-'аллергии':'аллергия','аллергию':'аллергия','аллергический':'аллергия',
-'зуда':'зуд','зудит':'зуд',
-'температуры':'температура','жара':'температура','жар':'температура',
-'кашля':'кашель','кашлять':'кашель','мокроты':'мокрота',
-'горла':'горло','горле':'горло',
-'носа':'нос','насморка':'нос','насморк':'нос',
-'глаз':'глаза','глазу':'глаза','глазах':'глаза',
-'уха':'ухо','ушей':'ухо','ушах':'ухо',
-'желудка':'желудок','желудке':'желудок','живота':'живот',
-'изжоги':'изжога','вздутия':'вздутие',
-'поноса':'диарея','понос':'диарея','диареи':'диарея',
-'запора':'запор',
-'раны':'рана','рану':'рана','пореза':'порез','ссадины':'ссадина',
-'укуса':'укусы','укусов':'укусы','насекомых':'укусы',
-'герпеса':'герпес',
-'десен':'десны','десна':'десны','десны':'десны',
-'суставов':'суставы','сустава':'суставы',
-'мышц':'мышцы',
-'ребенка':'ребенок','ребенку':'ребенок','детям':'детский',
-'антисептика':'антисептик'
+  'аллергии':'аллергия','аллергию':'аллергия','аллергический':'аллергия','аллергическая':'аллергия',
+  'зуда':'зуд','зудит':'зуд','температуры':'температура','жара':'температура','жар':'температура',
+  'кашля':'кашель','кашлять':'кашель','мокроты':'мокрота','горла':'горло','горле':'горло','горлом':'горло',
+  'носа':'нос','носу':'нос','носе':'нос','насморка':'нос','насморк':'нос','ринит':'нос','ринита':'нос',
+  'глаз':'глаза','глазу':'глаза','глазах':'глаза','глазные':'глаза','глазной':'глаза',
+  'уха':'ухо','ухе':'ухо','ушей':'ухо','ушах':'ухо','уши':'ухо','ушные':'ухо','ушной':'ухо','отита':'отит','отите':'отит',
+  'желудка':'желудок','желудке':'желудок','желудочный':'желудок','желудочные':'желудок',
+  'кишечника':'кишечник','кишечнике':'кишечник','кишечный':'кишечник','кишечные':'кишечник',
+  'живота':'живот','животе':'живот','животом':'живот','изжоги':'изжога','вздутия':'вздутие',
+  'поноса':'диарея','понос':'диарея','диареи':'диарея','запора':'запор','боли':'боль','болях':'боль',
+  'головы':'голова','голове':'голова','головная':'голова','головной':'голова','головную':'голова',
+  'зуба':'зуб','зубе':'зуб','зубов':'зуб','зубная':'зуб','зубной':'зуб',
+  'раны':'рана','рану':'рана','ран':'рана','пореза':'порез','порезов':'порез','ссадины':'ссадина',
+  'ожога':'ожог','ожогов':'ожог','укуса':'укусы','укусов':'укусы','насекомых':'укусы',
+  'герпеса':'герпес','десен':'десны','десна':'десны','десны':'десны','деснах':'десны',
+  'суставов':'суставы','сустава':'суставы','суставе':'суставы','мышц':'мышцы','мышцах':'мышцы',
+  'ребенка':'ребенок','ребенку':'ребенок','детям':'детский','детей':'детский','антисептика':'антисептик',
+  'отека':'отек','отеки':'отек','отеков':'отек','отёк':'отек','отёка':'отек','отёки':'отек'
 };
-function qwords(raw){
-  const a=norm(raw).split(' ').filter(Boolean),out=[];
-  for(const t of a){if(STOP.has(t))continue;const w=ALIAS[t]||t;if(!out.includes(w))out.push(w)}
-  return out
-}
-function tokenOk(w,b){
-  if(b.includes(w))return true;
-  if(w.length>=5){
-    const stem=w.replace(/(иями|ями|ами|его|ого|ему|ому|иям|ием|ией|ию|ия|ии|ие|ые|ой|ий|ый|ая|яя|ое|ее|ам|ям|ах|ях|ов|ев|ом|ем|у|ю|а|я|ы|и|е)$/,'');
-    if(stem.length>=4&&b.includes(stem))return true
+function stem(w){if(w.length<6)return w;return w.replace(/(иями|ями|ами|его|ого|ему|ому|иям|ием|ией|ию|ия|ии|ие|ые|ой|ий|ый|ая|яя|ое|ее|ам|ям|ах|ях|ов|ев|ом|ем|у|ю|а|я|ы|и|е)$/,'')}
+function canon(w){return stem(ALIAS[w]||w)}
+function tokens(s){return norm(s).split(' ').filter(Boolean).map(canon)}
+function tokenSet(s){return new Set(tokens(s))}
+const C={abdomen:canon('живот'),head:canon('голова'),tooth:canon('зуб'),throat:canon('горло'),ear:canon('ухо'),eyes:canon('глаза'),herpes:canon('герпес'),pain:canon('боль'),temperature:canon('температура')};
+function parseQuery(raw){
+  const n=norm(raw),src=n.split(' ').filter(Boolean),out=[];
+  for(const t of src){if(STOP.has(t))continue;const c=canon(t);if(c&&!out.includes(c))out.push(c)}
+  if(!out.length&&src.some(t=>PAIN_WORDS.has(t)))out.push(C.pain);
+  const sites=[C.abdomen,C.head,C.tooth,C.throat,C.ear,C.eyes];
+  if(out.includes(C.pain)&&out.some(t=>sites.includes(t))){
+    const i=out.indexOf(C.pain);if(i>=0)out.splice(i,1)
   }
-  return false
+  return{raw:n,tokens:out}
 }
-function match(x){
-  const words=qwords($('#q').value),b=blob(x);
-  const text=words.every(w=>tokenOk(w,b));
-  let cat=true;
-  if(active==='Скоро истекает')cat=itemState(x)==='soon';
-  else if(active==='Просрочено')cat=itemState(x)==='expired';
-  else if(active==='Без срока')cat=!expiryDate(x.expiry_display)&&!/квартал 2026/i.test(x.expiry_display)&&!/2028, месяц/i.test(x.expiry_display);
-  else if(active==='Детское')cat=['детск','ребен','педиатр'].some(w=>b.includes(w));
-  else if(active!=='Все')cat=x.category===active;
-  return text&&cat
+function searchMeta(x){
+  if(x._searchMeta)return x._searchMeta;
+  const name=tokenSet(x.name),substance=tokenSet(x.substance),purpose=tokenSet(x.purpose),keywords=tokenSet(x.keywords),location=tokenSet(x.location);
+  const all=new Set([...name,...substance,...purpose,...keywords,...location]);
+  return x._searchMeta={name,substance,purpose,keywords,location,all,nameNorm:norm(x.name)}
+}
+function hasAny(set,arr){return arr.some(t=>set.has(canon(t)))}
+function systemicPain(x,m){
+  if(x.category==='Температура и боль'){if(hasAny(m.all,['гель','мышцы','суставы','наружно','невралгия']))return false;return m.all.has(C.pain)||m.all.has(C.temperature)}
+  return x.category==='Детское'&&m.all.has(C.pain)
+}
+function abdominal(x,m){
+  const src=norm([x.name,x.purpose,x.keywords].join(' '));if(src.includes('гемор'))return false;
+  if(x.category==='Желудок и кишечник')return true;
+  return hasAny(m.all,['кишечник','микрофлора','пробиотик','лактоза'])
+}
+function dentalPain(x,m){return systemicPain(x,m)||(x.category==='Рот и горло'&&hasAny(m.all,['десны','стоматология'])&&m.all.has(C.pain))}
+function termMatch(term,x,m){
+  if(term===C.abdomen)return abdominal(x,m);if(term===C.head)return systemicPain(x,m);if(term===C.tooth)return dentalPain(x,m);
+  if(term===C.throat)return x.category!=='Медизделия'&&m.all.has(term);
+  if(term===C.herpes&&/не считать лекарством для лечения герпеса/i.test(x.note))return false;
+  return m.all.has(term)
+}
+function searchMatch(x,q){const m=searchMeta(x);return q.tokens.every(t=>termMatch(t,x,m))}
+function prefixFallback(x,q){if(q.tokens.length!==1||q.tokens[0].length<4)return false;const t=q.tokens[0],m=searchMeta(x);return [...m.name].some(w=>w.startsWith(t))}
+function searchScore(x,q){
+  const m=searchMeta(x);let s=0;const rawCore=q.tokens.join(' ');
+  if(rawCore&&m.nameNorm===rawCore)s+=300;if(q.tokens.length&&q.tokens.every(t=>m.name.has(t)))s+=120;
+  for(const t of q.tokens){if(m.name.has(t))s+=35;if(m.substance.has(t))s+=22;if(m.keywords.has(t))s+=18;if(m.purpose.has(t))s+=14;if(t===C.abdomen&&abdominal(x,m))s+=16;if(t===C.head&&systemicPain(x,m))s+=16;if(t===C.tooth&&dentalPain(x,m))s+=16}
+  return s
+}
+function filterMatch(x){
+  if(active==='Скоро истекает')return itemState(x)==='soon';
+  if(active==='Просрочено')return itemState(x)==='expired';
+  if(active==='Без срока')return !expiryDate(x.expiry_display)&&!/квартал 2026/i.test(x.expiry_display)&&!/2028, месяц/i.test(x.expiry_display);
+  if(active==='Детское'){const b=norm([x.name,x.purpose,x.keywords,x.category].join(' '));return ['детск','ребен','педиатр'].some(w=>b.includes(w))}
+  if(active!=='Все')return x.category===active;return true
 }
 function sortRows(a){
   const mode=$('#sort').value;
-  return a.sort((x,y)=>{
-    if(mode==='expiry'){
-      const xd=expiryDate(x.expiry_display),yd=expiryDate(y.expiry_display);
-      if(xd&&yd)return xd-yd;if(xd)return-1;if(yd)return 1
-    }
-    if(mode==='location'){const c=x.location.localeCompare(y.location,'ru');if(c)return c}
-    return x.name.localeCompare(y.name,'ru')
-  })
+  return a.sort((x,y)=>{if(mode==='expiry'){const xd=expiryDate(x.expiry_display),yd=expiryDate(y.expiry_display);if(xd&&yd)return xd-yd;if(xd)return-1;if(yd)return 1}if(mode==='location'){const c=x.location.localeCompare(y.location,'ru');if(c)return c}return x.name.localeCompare(y.name,'ru')})
 }
 function esc(s){return(s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
 function regexEsc(s){return s.replace(/[.*+?^$()|[\]\\{}]/g,'\\$&')}
 function highlight(s){
   let out=esc(s);
   const terms=($('#q').value||'').split(/\s+/).map(t=>t.replace(/[^a-zа-яё0-9-]/gi,'')).filter(t=>t.length>1&&!STOP.has(norm(t))).slice(0,6);
-  for(const t of terms){out=out.replace(new RegExp('('+regexEsc(esc(t))+')','gi'),'<mark>$1</mark>')}
-  return out
+  for(const t of terms){out=out.replace(new RegExp('('+regexEsc(esc(t))+')','gi'),'<mark>$1</mark>')}return out
 }
 function chips(){
   $('#chips').innerHTML=cats.map(c=>'<button class="chip '+(c.key===active?'active':'')+'" data-c="'+esc(c.key)+'">'+esc(c.label)+'</button>').join('');
   document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{active=b.dataset.c;chips();render()})
 }
 function render(){
-  const rows=sortRows(ITEMS.filter(match));
-  const searching=$('#q').value.trim()||active!=='Все';
-  $('#summary').textContent=searching?'Найдено: '+rows.length+' из '+ITEMS.length:'Всего позиций: '+ITEMS.length;
-  if(!rows.length){
-    $('#list').innerHTML='<div class="empty"><div class="emptyicon">⌕</div><strong>Ничего не найдено</strong><div>Попробуйте другое название, назначение или одну из быстрых категорий сверху.</div></div>';
-    return
-  }
+  const q=parseQuery($('#q').value),searching=q.tokens.length>0;if(searching&&active!=='Все'){active='Все';chips()}
+  let rows;let fallback=false;
+  if(searching){rows=ITEMS.filter(x=>searchMatch(x,q));if(!rows.length){rows=ITEMS.filter(x=>prefixFallback(x,q));fallback=rows.length>0}rows.sort((a,b)=>searchScore(b,q)-searchScore(a,q)||a.name.localeCompare(b.name,'ru'))}
+  else{rows=sortRows(ITEMS.filter(filterMatch))}
+  $('#summary').textContent=searching?'Найдено: '+rows.length+' из '+ITEMS.length+' • поиск по всей аптечке'+(fallback?' • по началу названия':''):(active==='Все'?'Всего позиций: '+ITEMS.length:'Найдено: '+rows.length+' из '+ITEMS.length);
+  if(!rows.length){$('#list').innerHTML='<div class="empty"><div class="emptyicon">⌕</div><strong>Ничего не найдено</strong><div>Попробуйте: «от живота», «болит горло», «от насморка», «от температуры» или точное название лекарства.</div></div>';return}
   $('#list').innerHTML=rows.map(x=>{
-    const st=itemState(x);
-    const substance=x.substance?'<div><span class="label">Действующее вещество:</span> '+highlight(x.substance)+'</div>':'';
-    const note=x.note?'<div class="note">'+highlight(x.note)+'</div>':'';
+    const st=itemState(x),substance=x.substance?'<div><span class="label">Действующее вещество:</span> '+highlight(x.substance)+'</div>':'',note=x.note?'<div class="note">'+highlight(x.note)+'</div>':'';
     return '<article class="card '+st+'"><div class="cardtop"><div class="name">'+highlight(x.name)+'</div><span class="badge">'+esc(x.category)+'</span></div><div class="meta">'+substance+'<div><span class="label">Для чего:</span> '+highlight(x.purpose)+'</div><div class="expiryrow"><span class="label">Срок годности:</span><span class="expiry '+st+'">'+esc(x.expiry_display)+statusFor(st)+'</span></div></div><div class="location"><span class="locationicon">📍</span><div><span class="label">Где лежит:</span> <strong>'+highlight(x.location)+'</strong></div></div>'+note+'</article>'
   }).join('')
 }
-
 const searchInput=$('#q'),voiceHelp=$('#voiceHelp'),clearBtn=$('#clear');
 function syncClear(){clearBtn.hidden=!searchInput.value}
-searchInput.addEventListener('input',()=>{if(searchInput.value.trim()){voiceHelp.style.display='none';if(active!=='Все'){active='Все';chips();}}syncClear();render()});
+searchInput.addEventListener('input',()=>{if(searchInput.value.trim()){voiceHelp.style.display='none';if(active!=='Все'){active='Все';chips()}}syncClear();render()});
 clearBtn.onclick=()=>{searchInput.value='';active='Все';voiceHelp.style.display='none';chips();syncClear();render();searchInput.focus()};
 $('#sort').addEventListener('change',render);
-
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-function voiceFallback(msg){
-  searchInput.focus();
-  voiceHelp.style.display='block';
-  $('#voiceHint').textContent=msg;
-  const v=searchInput.value;
-  try{searchInput.setSelectionRange(v.length,v.length)}catch(e){}
-}
+function voiceFallback(msg){searchInput.focus();voiceHelp.style.display='block';$('#voiceHint').textContent=msg;const v=searchInput.value;try{searchInput.setSelectionRange(v.length,v.length)}catch(e){}}
 if(SR){
-  const r=new SR();
-  r.lang='ru-RU';r.interimResults=false;r.maxAlternatives=1;
-  $('#voice').onclick=()=>{
-    voiceHelp.style.display='none';
-    $('#voiceHint').textContent='Включаю голосовой поиск…';
-    try{r.start()}catch(e){voiceFallback('Прямой голосовой поиск недоступен в этом режиме. Используйте микрофон клавиатуры телефона.')}
-  };
+  const r=new SR();r.lang='ru-RU';r.interimResults=false;r.maxAlternatives=1;
+  $('#voice').onclick=()=>{voiceHelp.style.display='none';$('#voiceHint').textContent='Включаю голосовой поиск…';try{r.start()}catch(e){voiceFallback('Прямой голосовой поиск недоступен в этом режиме. Используйте микрофон клавиатуры телефона.')}};
   r.onstart=()=>$('#voiceHint').textContent='Слушаю… скажите название или назначение.';
-  r.onresult=e=>{
-    searchInput.value=e.results[0][0].transcript;
-    active='Все';chips();syncClear();render();
-    voiceHelp.style.display='none';
-    $('#voiceHint').textContent='Голосовой запрос распознан.'
-  };
+  r.onresult=e=>{searchInput.value=e.results[0][0].transcript;active='Все';chips();syncClear();render();voiceHelp.style.display='none';$('#voiceHint').textContent='Голосовой запрос распознан.'};
   r.onerror=()=>voiceFallback('Браузер не разрешил прямое распознавание речи. Используйте микрофон клавиатуры телефона.');
   r.onend=()=>{if($('#voiceHint').textContent.startsWith('Слушаю'))$('#voiceHint').textContent='Голосовой поиск завершён.'}
-}else{
-  $('#voice').onclick=()=>voiceFallback('В этом браузере прямое распознавание речи не поддерживается. Используйте микрофон клавиатуры телефона.')
-}
+}else{$('#voice').onclick=()=>voiceFallback('В этом браузере прямое распознавание речи не поддерживается. Используйте микрофон клавиатуры телефона.')}
 chips();syncClear();render();
 if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+
 </script></body></html>
